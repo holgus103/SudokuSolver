@@ -1,0 +1,6 @@
+TestResults
+.vs
+SudokuSolver/bin
+SudokuSolver/obj
+SudokuTests/bin
+SudokuTests/obj
