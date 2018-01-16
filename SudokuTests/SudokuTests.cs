@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SudokuSolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
@@ -79,19 +80,49 @@ namespace SudokuTests
         {
             string[] sudokus = File.ReadAllText(@"in.txt").Split("[]".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             int[] array = new int[81];
-            string[] temp = sudokus[1].Split(" ,\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < 81; i++)
+            for (var j = 0; j < sudokus.Length; j += 2)
             {
-                array[i] = Convert.ToInt32(temp[i]);
+                string[] temp = sudokus[j + 1].Split(" ,\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < 81; i++)
+                {
+                    array[i] = Convert.ToInt32(temp[i]);
+                }
+                int[] results = new int[81];
+                temp = sudokus[j + 3].Split(" ,\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < 81; i++)
+                {
+                    results[i] = Convert.ToInt32(temp[i]);
+                }
+                Sudoku sudoku = new Sudoku(array);
+                CollectionAssert.AreEqual(results, sudoku.Solve());
             }
-            int[] results = new int[81];
-            temp = sudokus[3].Split(" ,\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < 81; i++)
+        }
+
+        [TestMethod]
+        public void PablosTest()
+        {
+            var start = DateTime.Now;
+            var sudokus = new List<Sudoku>(50);
+            string[] lines = File.ReadAllLines(@"pablo.txt");
+            for (var i = 0; i < lines.Length; i += 10)
             {
-                results[i] = Convert.ToInt32(temp[i]);
+                int[] array = new int[81];
+
+                // for every row
+                for (var j = 0; j < 9; j++)
+                {
+                    for (var k = 0; k < 9; k++)
+                    {
+                        array[j * 9 + k] = (int)(lines[i + 1 + j][k]) - (int)'0';
+                    }
+                }
+                sudokus.Add(new Sudoku(array));
             }
-            Sudoku sudoku = new Sudoku(array);
-            CollectionAssert.AreEqual(results, sudoku.Solve());
+            var mid = DateTime.Now;
+            sudokus.ForEach(s => s.Solve());
+            var end = DateTime.Now;
+            Debug.WriteLine((end - start).TotalMilliseconds);
+            Debug.WriteLine((mid - start).TotalMilliseconds);
         }
     }
 }
